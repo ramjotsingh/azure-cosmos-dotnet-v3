@@ -999,6 +999,8 @@ namespace Microsoft.Azure.Cosmos
                          hostEnvInfo: null,
                          httpClient: this.httpClient,
                          isClientTelemetryEnabled: this.ConnectionPolicy.EnableClientTelemetry);
+
+            await this.clientTelemetry.initAsync();
         }
 
         private async Task InitializeCachesAsync(string databaseName, DocumentCollection collection, CancellationToken cancellationToken)
