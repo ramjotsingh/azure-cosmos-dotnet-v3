@@ -23,7 +23,7 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
             this.cancellationTokenSource = new CancellationTokenSource();
             this.cancellationToken = this.cancellationTokenSource.Token;
 
-            this.cosmosClient = TestCommon.CreateCosmosClient(validatePartitionKeyRangeCalls: validateSinglePartitionKeyRangeCacheCall, customizeClientBuilder: customizeClientBuilder);
+            this.cosmosClient = TestCommon.CreateCosmosClient(validatePartitionKeyRangeCalls: validateSinglePartitionKeyRangeCacheCall, customizeClientBuilder: (builder) => builder.WithTelemetryEnabled());
             this.database = await this.cosmosClient.CreateDatabaseAsync(Guid.NewGuid().ToString(),
                 cancellationToken: this.cancellationToken);
         }
