@@ -259,20 +259,20 @@ namespace Microsoft.Azure.Cosmos
                         serverRequest.Operations,
                         serverResponse);
 
-                    if (this.enableClientTelemetry)
+                   /* if (this.enableClientTelemetry)
                     {
                         this.cosmosClientContext.DocumentClient.clientTelemetry.Collect(
                             this.cosmosClientContext.Client,
                             serverResponse.Diagnostics,
                             serverResponse.StatusCode,
-                            Int32.Parse(serverResponse.Headers.ContentLength),
+                            serverResponse.Headers.ContentLength == null ? 0 : Int32.Parse(serverResponse.Headers.ContentLength),
                             this.cosmosContainer.Database.Id,
                             this.cosmosContainer.Id,
                             OperationType.Batch,
                             ResourceType.Document,
                             null,
                             serverResponse.RequestCharge);
-                    }
+                    }*/
                     return result;
                 }
             }

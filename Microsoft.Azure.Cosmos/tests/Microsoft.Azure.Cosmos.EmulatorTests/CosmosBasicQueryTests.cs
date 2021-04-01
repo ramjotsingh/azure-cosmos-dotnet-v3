@@ -24,8 +24,6 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
     {
         private static readonly QueryRequestOptions RequestOptions = new QueryRequestOptions() { MaxItemCount = 1 };
         private static CosmosClient DirectCosmosClient;
-        private static CosmosClient DirectCosmosClientWithTelemetry;
-        private static CosmosClient GatewayCosmosClientWithTelemetry;
         private static CosmosClient GatewayCosmosClient;
         private const string DatabaseId = "CosmosBasicQueryTests";
         private static readonly string ContainerId = "ContainerBasicQueryTests" + Guid.NewGuid();
@@ -33,12 +31,8 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
         [ClassInitialize]
         public static async Task TestInit(TestContext textContext)
         {
-            CosmosBasicQueryTests.DirectCosmosClient    = TestCommon.CreateCosmosClient();
-            CosmosBasicQueryTests.GatewayCosmosClient   = TestCommon.CreateCosmosClient((builder) => builder.WithConnectionModeGateway());
-            
-            CosmosBasicQueryTests.DirectCosmosClientWithTelemetry = TestCommon.CreateCosmosClient((builder) => builder.WithTelemetryEnabled());
-            CosmosBasicQueryTests.GatewayCosmosClientWithTelemetry = TestCommon.CreateCosmosClient((builder) => builder.WithConnectionModeGateway().WithTelemetryEnabled());
-
+            CosmosBasicQueryTests.DirectCosmosClient = TestCommon.CreateCosmosClient();
+            CosmosBasicQueryTests.GatewayCosmosClient = TestCommon.CreateCosmosClient((builder) => builder.WithConnectionModeGateway());
             Database database = await DirectCosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseId);
             await database.CreateContainerIfNotExistsAsync(ContainerId, "/pk");
         }
@@ -59,17 +53,14 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
         }
 
         [TestMethod]
-        [DataRow(false, false)]
-        [DataRow(true , false)]
-        public async Task DatabaseTest(bool directMode, bool isTelemetryEnabled)
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task DatabaseTest(bool directMode)
         {
-            CosmosClient client = directMode ? 
-                (isTelemetryEnabled? DirectCosmosClientWithTelemetry : DirectCosmosClient) :
-                (isTelemetryEnabled ? GatewayCosmosClientWithTelemetry : GatewayCosmosClient);
-
+            CosmosClient client = directMode ? DirectCosmosClient : GatewayCosmosClient;
             List<Database> deleteList = new List<Database>();
             List<string> createdIds = new List<string>();
-           
+
             try
             {
                 DatabaseResponse createResponse = await client.CreateDatabaseIfNotExistsAsync(id: "BasicQueryDb1");
@@ -110,7 +101,6 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
                 }
             }
         }
-
 
         [TestMethod]
         [DataRow(false)]

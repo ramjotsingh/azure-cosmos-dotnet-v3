@@ -209,7 +209,7 @@ namespace Microsoft.Azure.Cosmos
 
             ReportPayload reportPayload = new ReportPayload(metricsName, unitName)
             {
-                RegionsContacted = regionUris.ToString(),
+                RegionsContacted = string.Join(",", regionUris),
                 Consistency = consistencyLevel ?? client.ClientOptions.ConsistencyLevel.GetValueOrDefault(),
                 DatabaseName = databaseId,
                 ContainerName = containerId,
