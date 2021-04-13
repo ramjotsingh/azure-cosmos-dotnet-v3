@@ -217,7 +217,7 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
             await this.container.DeleteItemStreamAsync(testItem.id, new Cosmos.PartitionKey(testItem.id));
             allowedOperations.Add(Documents.OperationType.Delete);
             expectedOperationCodeMap.Add(Documents.OperationType.Delete, HttpStatusCode.NoContent);
-            this.AssertClientTelemetryInfo(allowedOperations, 10, expectedOperationCodeMap);
+            this.AssertClientTelemetryInfo(allowedOperations, 12, expectedOperationCodeMap);
         }
 
         [TestMethod]
