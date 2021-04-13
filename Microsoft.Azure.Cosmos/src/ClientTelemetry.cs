@@ -80,14 +80,28 @@ namespace Microsoft.Azure.Cosmos
                                CosmosHttpClient httpClient,
                                bool isClientTelemetryEnabled)
         {
-            this.ClientTelemetryInfo = new ClientTelemetryInfo(clientId, processId, userAgent, connectionMode,
-                globalDatabaseAccountName, acceleratedNetworking);
+            this.ClientTelemetryInfo = new ClientTelemetryInfo(
+                clientId: clientId, 
+                processId: processId, 
+                userAgent: userAgent, 
+                connectionMode: connectionMode,
+                globalDatabaseAccountName: globalDatabaseAccountName, 
+                acceleratedNetworking: acceleratedNetworking);
+
             this.HttpClient = httpClient;
-            this.IsClientTelemetryEnabled = CosmosConfigurationManager
-                .GetEnvironmentVariable<bool>(EnvPropsClientTelemetryEnabled, isClientTelemetryEnabled);
+            this.IsClientTelemetryEnabled = IsTelemetryEnabled(isClientTelemetryEnabled);
             this.ClientTelemetrySchedulingInSeconds = CosmosConfigurationManager
-                .GetEnvironmentVariable<double>(EnvPropsClientTelemetrySchedulingInSeconds, DefaultTimeStampInSeconds);
+                .GetEnvironmentVariable<double>(
+                    EnvPropsClientTelemetrySchedulingInSeconds, 
+                    DefaultTimeStampInSeconds);
             this.CancellationTokenSource = new CancellationTokenSource();
+        }
+
+        internal static bool IsTelemetryEnabled(bool defaultValue)
+        {
+            return CosmosConfigurationManager
+                .GetEnvironmentVariable<bool>(ClientTelemetry.EnvPropsClientTelemetryEnabled,
+                    defaultValue);
         }
 
         internal async Task LoadAzureVmMetaDataAsync()
@@ -158,12 +172,9 @@ namespace Microsoft.Azure.Cosmos
                 .OperationInfoMap
                 .TryGetValue(reportPayloadLatency, out LongConcurrentHistogram latencyHistogram);
 
-            if (latencyHistogram == null)
-            {
-                latencyHistogram = statusCode.IsSuccess()
-                    ? new LongConcurrentHistogram(1, RequestLatencyMaxMicroSec, RequestLatencySuccessPrecision)
-                    : new LongConcurrentHistogram(1, RequestLatencyMaxMicroSec, RequestLatencyFailurePrecision);
-            }
+            latencyHistogram ??= statusCode.IsSuccess()
+                ? new LongConcurrentHistogram(1, RequestLatencyMaxMicroSec, RequestLatencySuccessPrecision)
+                : new LongConcurrentHistogram(1, RequestLatencyMaxMicroSec, RequestLatencyFailurePrecision);
             latencyHistogram.RecordValue((long)cosmosDiagnostics.GetClientElapsedTime().TotalMilliseconds * 1000);
             this.ClientTelemetryInfo.OperationInfoMap[reportPayloadLatency] = latencyHistogram;
 
@@ -251,7 +262,6 @@ namespace Microsoft.Azure.Cosmos
                 }
                 finally
                 {
-                    this.Reset();
                     await this.CalculateAndSendTelemetryInformationAsync();
                 }
             }

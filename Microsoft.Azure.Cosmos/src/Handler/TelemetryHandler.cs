@@ -35,7 +35,8 @@ namespace Microsoft.Azure.Cosmos.Handlers
                     .DocumentClient
                     .clientTelemetry
                     .Collect(
-                          cosmosDiagnostics: response.Diagnostics, response.StatusCode,
+                          cosmosDiagnostics: response.Diagnostics,
+                          statusCode: response.StatusCode,
                           responseSizeInBytes: this.GetPayloadSize(response),
                           containerId: request.TelemetryInfo?.ContainerId,
                           databaseId: request.TelemetryInfo?.DatabaseId,
@@ -47,19 +48,12 @@ namespace Microsoft.Azure.Cosmos.Handlers
             return response;
         }
 
-        private bool IsTelemetryEnabled(RequestMessage request)
-        {
-            return CosmosConfigurationManager
-                .GetEnvironmentVariable<bool>(ClientTelemetry.EnvPropsClientTelemetryEnabled, 
-                this.client
-                .ClientOptions
-                .EnableClientTelemetry) && request.TelemetryInfo != null;
-        }
-
         private bool IsAllowed(RequestMessage request)
-        {
-            return this.IsTelemetryEnabled(request) && 
-                ClientTelemetry.AllowedResourceTypes.Contains(request.ResourceType);
+        { 
+            return ClientTelemetry.IsTelemetryEnabled(this.client
+                       .ClientOptions
+                       .EnableClientTelemetry) && 
+                   ClientTelemetry.AllowedResourceTypes.Contains(request.ResourceType);
         }
 
         private ConsistencyLevel? GetConsistencyLevel(RequestMessage request)
