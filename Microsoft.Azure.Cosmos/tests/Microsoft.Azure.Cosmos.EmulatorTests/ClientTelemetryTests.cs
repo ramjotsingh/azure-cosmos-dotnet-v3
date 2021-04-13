@@ -31,6 +31,8 @@ namespace Microsoft.Azure.Cosmos.SDK.EmulatorTests
         [TestInitialize]
         public async Task TestInitialize()
         {
+            Environment.SetEnvironmentVariable(ClientTelemetry.EnvPropsClientTelemetrySchedulingInSeconds, "1");
+
             CosmosClientBuilder cosmosClientBuilder = TestCommon.GetDefaultConfiguration();
             cosmosClientBuilder.WithTelemetryEnabled();
 
