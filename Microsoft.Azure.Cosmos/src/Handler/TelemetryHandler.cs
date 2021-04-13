@@ -31,15 +31,18 @@ namespace Microsoft.Azure.Cosmos.Handlers
             ResponseMessage response = await base.SendAsync(request, cancellationToken);
             if (this.IsAllowed(request))
             {
-                this.client.DocumentClient.clientTelemetry.Collect(
-                  response.Diagnostics, response.StatusCode,
-                  this.GetPayloadSize(response),
-                  request.TelemetryInfo?.ContainerId,
-                  request.TelemetryInfo?.DatabaseId,
-                  request.OperationType,
-                  request.ResourceType,
-                  this.GetConsistencyLevel(request),
-                  request.Headers.RequestCharge);
+                this.client
+                    .DocumentClient
+                    .clientTelemetry
+                    .Collect(
+                          cosmosDiagnostics: response.Diagnostics, response.StatusCode,
+                          responseSizeInBytes: this.GetPayloadSize(response),
+                          containerId: request.TelemetryInfo?.ContainerId,
+                          databaseId: request.TelemetryInfo?.DatabaseId,
+                          operationType: request.OperationType,
+                          resourceType: request.ResourceType,
+                          consistencyLevel: this.GetConsistencyLevel(request),
+                          requestCharge: request.Headers.RequestCharge);
             }
             return response;
         }
@@ -50,7 +53,7 @@ namespace Microsoft.Azure.Cosmos.Handlers
                 .GetEnvironmentVariable<bool>(ClientTelemetry.EnvPropsClientTelemetryEnabled, 
                 this.client
                 .ClientOptions
-                .EnableClientTelemetry && request.TelemetryInfo != null);
+                .EnableClientTelemetry) && request.TelemetryInfo != null;
         }
 
         private bool IsAllowed(RequestMessage request)
