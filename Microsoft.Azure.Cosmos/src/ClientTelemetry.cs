@@ -124,7 +124,7 @@ namespace Microsoft.Azure.Cosmos
                     createRequestMessageAsync: CreateRequestMessage,
                     resourceType: ResourceType.Unknown,
                     timeoutPolicy: HttpTimeoutPolicyControlPlaneRead.Instance,
-                    trace: NoOpTrace.Singleton,
+                    clientSideRequestStatistics: null,
                     cancellationToken: default);
                 AzureVMMetadata azMetadata = await ProcessResponseAsync(httpResponseMessage);
 
